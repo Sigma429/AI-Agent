@@ -1,0 +1,40 @@
+spring:
+  application:
+    name: AI-Agent
+  config:
+    import: classpath:config.properties
+  ai:
+    dashscope:
+      api-key: ${API_KEY}
+      chat:
+        options:
+          model: qwen-plus
+    ollama:
+      base-url: http://localhost:11434
+      chat:
+        model: deepseek-r1:1.5b
+server:
+  port: 8123
+  servlet:
+    context-path: /api
+# springdoc-openapi
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+  api-docs:
+    path: /v3/api-docs
+  group-configs:
+    - group: 'default'
+      paths-to-match: '/**'
+      packages-to-scan: com.sigma.aiagent.controller
+# knife4j
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
+# \u4FEE\u6539\u65E5\u5FD7\u7EA7\u522B\uFF0C\u67E5\u770B Spring AI \u66F4\u591A\u8C03\u7528\u7EC6\u8282
+logging:
+  level:
+    org.springframework.ai: DEBUG
