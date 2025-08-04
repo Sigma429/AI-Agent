@@ -86,9 +86,11 @@ public class LoveApp {
 
     @Resource
     private VectorStore loveAppVectorStore;
+    @Resource
+    private Advisor loveAppRagCloudAdvisor;
 
     /**
-     * 和 RAG 知识库进行对话
+     * 和 RAG 本地知识库进行对话
      * @param message
      * @param chatId
      * @return
@@ -102,6 +104,28 @@ public class LoveApp {
                 .advisors(new MyLoggerAdvisor())
                 // 应用知识库问答
                 .advisors(new QuestionAnswerAdvisor(loveAppVectorStore))
+                .call()
+                .chatResponse();
+        String content = chatResponse.getResult().getOutput().getText();
+        // log.info("content: {}", content);
+        return content;
+    }
+
+    /**
+     * 和 RAG 云知识库进行对话
+     * @param message
+     * @param chatId
+     * @return
+     */
+    public String doChatWithCloudRag(String message, String chatId) {
+        ChatResponse chatResponse = chatClient
+                .prompt()
+                .user(message)
+                .advisors(spec -> spec.param(ChatMemory.CONVERSATION_ID, chatId))
+                // 开启日志，便于观察效果
+                .advisors(new MyLoggerAdvisor())
+                // 应用增强检索服务（云知识库服务）
+                .advisors(loveAppRagCloudAdvisor)
                 .call()
                 .chatResponse();
         String content = chatResponse.getResult().getOutput().getText();
