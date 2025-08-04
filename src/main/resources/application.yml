@@ -3,6 +3,11 @@ spring:
     name: AI-Agent
   config:
     import: classpath:config.properties
+  datasource:
+    url:
+    username:
+    password:
+    driver-class-name: org.postgresql.Driver
   ai:
     dashscope:
       api-key: ${API_KEY}
@@ -13,6 +18,13 @@ spring:
       base-url: http://localhost:11434
       chat:
         model: deepseek-r1:1.5b
+# \u4E34\u65F6\u6CE8\u91CA\u6389\uFF0C\u4FBF\u4E8E\u5927\u5BB6\u5F00\u53D1\u8C03\u8BD5\u548C\u90E8\u7F72\uFF08\u5B9E\u9645\u586B\u5199 PgVector \u6570\u636E\u5E93\u4FE1\u606F\uFF09
+#    vectorstore:
+#      pgvector:
+#        index-type: HNSW
+#        dimensions: 1536
+#        distance-type: COSINE_DISTANCE
+#        max-document-batch-size: 10000 # Optional: Maximum number of documents per batch
 server:
   port: 8123
   servlet:

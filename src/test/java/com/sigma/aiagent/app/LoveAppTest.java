@@ -7,9 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.UUID;
 
-@SpringBootTest(properties = {
-        "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration"
-})
+@SpringBootTest
 class LoveAppTest {
 
     @Resource
@@ -52,6 +50,14 @@ class LoveAppTest {
         String chatId = UUID.randomUUID().toString();
         String message = "我已经结婚了，但是婚后关系不太亲密，怎么办？";
         String answer = loveApp.doChatWithCloudRag(message, chatId);
+        Assertions.assertNotNull(answer);
+    }
+
+    @Test
+    void doChatWithPgVectorRag() {
+        String chatId = UUID.randomUUID().toString();
+        String message = "我已经结婚了，但是婚后关系不太亲密，怎么办？";
+        String answer = loveApp.doChatWithPgVectorRag(message, chatId);
         Assertions.assertNotNull(answer);
     }
 
