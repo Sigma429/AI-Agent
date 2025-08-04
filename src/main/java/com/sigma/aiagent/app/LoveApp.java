@@ -47,13 +47,14 @@ public class LoveApp {
         ChatMemory chatMemory = new FileBasedChatMemory(fileDir);
         // // 初始化基于内存的对话记忆
         // MessageWindowChatMemory chatMemory =
-        //         MessageWindowChatMemory.builder().chatMemoryRepository(new InMemoryChatMemoryRepository()).maxMessages(20).build();
+        //         MessageWindowChatMemory.builder().chatMemoryRepository(new InMemoryChatMemoryRepository())
+        //         .maxMessages(20).build();
         chatClient =
                 ChatClient.builder(dashscopeChatModel).defaultSystem(SYSTEM_PROMPT).defaultAdvisors(MessageChatMemoryAdvisor.builder(chatMemory).build(),
-                // 自定义日志 Advisor，可按需开启
-                new MyLoggerAdvisor(),
-                // 自定义推理增强 Advisor，可按需开启
-                new ReReadingAdvisor()).build();
+                        // 自定义日志 Advisor，可按需开启
+                        new MyLoggerAdvisor(),
+                        // 自定义推理增强 Advisor，可按需开启
+                        new ReReadingAdvisor()).build();
     }
 
     public String doChat(String message, String chatId) {
@@ -79,5 +80,32 @@ public class LoveApp {
                 chatClient.prompt().system(SYSTEM_PROMPT + "每次对话后都要生成恋爱结果，标题为{用户名}的恋爱报告，内容为建议列表").user(message).advisors(spec -> spec.param(ChatMemory.CONVERSATION_ID, chatId)).call().entity(LoveReport.class);
         // log.info("loveReport: {}", loveReport);
         return loveReport;
+    }
+
+    // AI 恋爱知识库问答功能
+
+    @Resource
+    private VectorStore loveAppVectorStore;
+
+    /**
+     * 和 RAG 知识库进行对话
+     * @param message
+     * @param chatId
+     * @return
+     */
+    public String doChatWithRag(String message, String chatId) {
+        ChatResponse chatResponse = chatClient
+                .prompt()
+                .user(message)
+                .advisors(spec -> spec.param(ChatMemory.CONVERSATION_ID, chatId))
+                // 开启日志，便于观察效果
+                .advisors(new MyLoggerAdvisor())
+                // 应用知识库问答
+                .advisors(new QuestionAnswerAdvisor(loveAppVectorStore))
+                .call()
+                .chatResponse();
+        String content = chatResponse.getResult().getOutput().getText();
+        // log.info("content: {}", content);
+        return content;
     }
 }
