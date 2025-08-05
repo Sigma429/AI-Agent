@@ -5,6 +5,7 @@ target/
 !**/src/test/**/target/
 chat-memory/
 src/main/resources/config.properties
+tmp/
 
 ### STS ###
 .apt_generated
