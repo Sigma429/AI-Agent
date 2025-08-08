@@ -1,6 +1,9 @@
 import axios from 'axios'
 
-const API_BASE_URL = 'http://localhost:8123/api'
+// 使用相对路径，让前端代理处理
+const API_BASE_URL = '/api'
+
+console.log('API Base URL:', API_BASE_URL)
 
 // 创建axios实例
 const apiClient = axios.create({
