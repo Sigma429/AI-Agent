@@ -138,13 +138,13 @@ public class ToolCallAgent extends ReActAgent {
             // 任务结束，更改状态
             setState(AgentState.FINISHED);
         }
-        String toolResults  = toolResponseMessage.getResponses().stream()
-                .map(response -> "执行工具 " + response.name() + " 返回的结果：" + response.responseData())
+        String toolResults = toolResponseMessage.getResponses().stream()
+                .map(response -> "执行工具 " + response.name() + "\n" + "\n")
                 .collect(Collectors.joining("\n"));
         // 合并模型响应和工具调用结果
         String combinedResult = "";
         if (modelResponseContent != null && !modelResponseContent.isEmpty()) {
-            combinedResult += "模型响应: " + modelResponseContent + "\n";
+            combinedResult += "模型响应: " + modelResponseContent + "\n" + "\n";
         }
         combinedResult += toolResults;
         log.info(combinedResult);
