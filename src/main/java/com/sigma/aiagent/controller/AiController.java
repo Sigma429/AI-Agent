@@ -5,6 +5,7 @@ import com.sigma.aiagent.app.LoveApp;
 import jakarta.annotation.Resource;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.tool.ToolCallback;
+import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,6 +28,8 @@ public class AiController {
 
     @Resource
     private ChatModel dashscopeChatModel;
+    @Resource
+    private VectorStore loveAppVectorStore;
 
     /**
      * 同步调用 AI 恋爱大师应用（支持多轮对话记忆，知识库检索，工具调用）
@@ -94,7 +97,7 @@ public class AiController {
      */
     @GetMapping("/manus/chat")
     public SseEmitter doChatWithManus(String message) {
-        Manus manus = new Manus(allTools, dashscopeChatModel);
+        Manus manus = new Manus(allTools, dashscopeChatModel, loveAppVectorStore);
         return manus.runStream(message);
     }
 }

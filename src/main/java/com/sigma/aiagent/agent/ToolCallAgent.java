@@ -44,12 +44,16 @@ public class ToolCallAgent extends ReActAgent {
     // 禁用 Spring AI 内置的工具调用机制，自己维护选项和消息上下文
     private final ChatOptions chatOptions;
 
-    @Resource
-    private VectorStore loveAppVectorStore;
+    // 向量存储
+    private final VectorStore vectorStore;
 
-    public ToolCallAgent(ToolCallback[] availableTools) {
+    // 保存模型响应的内容
+    private String modelResponseContent;
+
+    public ToolCallAgent(ToolCallback[] availableTools, VectorStore vectorStore) {
         super();
         this.availableTools = availableTools;
+        this.vectorStore = vectorStore;
         this.toolCallingManager = ToolCallingManager.builder().build();
         // 禁用 Spring AI 内置的工具调用机制，自己维护选项和消息上下文
         this.chatOptions = DashScopeChatOptions.builder()
@@ -75,7 +79,7 @@ public class ToolCallAgent extends ReActAgent {
             ChatResponse chatResponse = getChatClient().prompt(prompt)
                     .system(getSystemPrompt())
                     // 应用知识库问答
-                    .advisors(new QuestionAnswerAdvisor(loveAppVectorStore))
+                    .advisors(new QuestionAnswerAdvisor(vectorStore))
                     // 工具调用
                     .toolCallbacks(availableTools)
                     .call()
@@ -85,6 +89,8 @@ public class ToolCallAgent extends ReActAgent {
             // 3、解析工具调用结果，获取要调用的工具
             // 助手消息
             AssistantMessage assistantMessage = chatResponse.getResult().getOutput();
+            // 保存模型响应内容
+            this.modelResponseContent = assistantMessage.getText();
             // 获取要调用的工具列表
             List<AssistantMessage.ToolCall> toolCallList = assistantMessage.getToolCalls();
             log.info(getName() + "选择了 " + toolCallList.size() + " 个工具来使用");
@@ -132,10 +138,16 @@ public class ToolCallAgent extends ReActAgent {
             // 任务结束，更改状态
             setState(AgentState.FINISHED);
         }
-        String results = toolResponseMessage.getResponses().stream()
-                .map(response -> "工具 " + response.name() + " 返回的结果：" + response.responseData())
+        String toolResults  = toolResponseMessage.getResponses().stream()
+                .map(response -> "执行工具 " + response.name() + " 返回的结果：" + response.responseData())
                 .collect(Collectors.joining("\n"));
-        log.info(results);
-        return results;
+        // 合并模型响应和工具调用结果
+        String combinedResult = "";
+        if (modelResponseContent != null && !modelResponseContent.isEmpty()) {
+            combinedResult += "模型响应: " + modelResponseContent + "\n";
+        }
+        combinedResult += toolResults;
+        log.info(combinedResult);
+        return combinedResult;
     }
 }

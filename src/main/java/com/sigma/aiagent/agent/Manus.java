@@ -4,6 +4,7 @@ import com.sigma.aiagent.advisor.MyLoggerAdvisor;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.tool.ToolCallback;
+import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Component;
 
 /**
@@ -12,8 +13,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class Manus extends ToolCallAgent {
 
-    public Manus(ToolCallback[] allTools, ChatModel dashscopeChatModel) {
-        super(allTools);
+    public Manus(ToolCallback[] allTools, ChatModel dashscopeChatModel, VectorStore vectorStore) {
+        super(allTools, vectorStore);
         this.setName("Manus");
         String SYSTEM_PROMPT = """
                 You are Manus, an all-powerful AI assistant designed to handle any task presented by users. 
