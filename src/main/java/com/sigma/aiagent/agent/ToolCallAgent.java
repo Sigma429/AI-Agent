@@ -4,9 +4,11 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.cloud.ai.dashscope.chat.DashScopeChatOptions;
 import com.sigma.aiagent.agent.model.AgentState;
+import jakarta.annotation.Resource;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.ToolResponseMessage;
@@ -17,6 +19,7 @@ import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.model.tool.ToolCallingManager;
 import org.springframework.ai.model.tool.ToolExecutionResult;
 import org.springframework.ai.tool.ToolCallback;
+import org.springframework.ai.vectorstore.VectorStore;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -41,6 +44,9 @@ public class ToolCallAgent extends ReActAgent {
     // 禁用 Spring AI 内置的工具调用机制，自己维护选项和消息上下文
     private final ChatOptions chatOptions;
 
+    @Resource
+    private VectorStore loveAppVectorStore;
+
     public ToolCallAgent(ToolCallback[] availableTools) {
         super();
         this.availableTools = availableTools;
@@ -53,7 +59,6 @@ public class ToolCallAgent extends ReActAgent {
 
     /**
      * 处理当前状态并决定下一步行动
-     *
      * @return 是否需要执行行动
      */
     @Override
@@ -69,6 +74,9 @@ public class ToolCallAgent extends ReActAgent {
         try {
             ChatResponse chatResponse = getChatClient().prompt(prompt)
                     .system(getSystemPrompt())
+                    // 应用知识库问答
+                    .advisors(new QuestionAnswerAdvisor(loveAppVectorStore))
+                    // 工具调用
                     .toolCallbacks(availableTools)
                     .call()
                     .chatResponse();
@@ -79,9 +87,6 @@ public class ToolCallAgent extends ReActAgent {
             AssistantMessage assistantMessage = chatResponse.getResult().getOutput();
             // 获取要调用的工具列表
             List<AssistantMessage.ToolCall> toolCallList = assistantMessage.getToolCalls();
-            // 输出提示信息
-            String result = assistantMessage.getText();
-            log.info(getName() + "的思考：" + result);
             log.info(getName() + "选择了 " + toolCallList.size() + " 个工具来使用");
             String toolCallInfo = toolCallList.stream()
                     .map(toolCall -> String.format("工具名称：%s，参数：%s", toolCall.name(), toolCall.arguments()))
@@ -105,7 +110,6 @@ public class ToolCallAgent extends ReActAgent {
 
     /**
      * 执行工具调用并处理结果
-     *
      * @return 执行结果
      */
     @Override
@@ -119,7 +123,8 @@ public class ToolCallAgent extends ReActAgent {
         // 记录消息上下文，conversationHistory 已经包含了助手消息和工具调用返回的结果
         setMessageList(toolExecutionResult.conversationHistory());
         // 当前工具调用的结果
-        ToolResponseMessage toolResponseMessage = (ToolResponseMessage) CollUtil.getLast(toolExecutionResult.conversationHistory());
+        ToolResponseMessage toolResponseMessage =
+                (ToolResponseMessage) CollUtil.getLast(toolExecutionResult.conversationHistory());
         // 判断是否调用了终止工具
         boolean terminateToolCalled = toolResponseMessage.getResponses().stream()
                 .anyMatch(response -> response.name().equals("doTerminate"));

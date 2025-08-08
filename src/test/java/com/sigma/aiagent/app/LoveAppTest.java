@@ -16,16 +16,11 @@ class LoveAppTest {
     @Test
     void testChat() {
         String chatId = UUID.randomUUID().toString();
-        // 第一轮
-        String message = "你好，我是程序员鱼皮";
+        String message = """
+                我的另一半居住在上海静安区，请帮我找到 5 公里内合适的约会地点，
+                并结合一些网络图片，制定一份详细的约会计划，
+                并以 PDF 格式输出""";
         String answer = loveApp.doChat(message, chatId);
-        // 第二轮
-        message = "我想让另一半（编程导航）更爱我";
-        answer = loveApp.doChat(message, chatId);
-        Assertions.assertNotNull(answer);
-        // 第三轮
-        message = "我的另一半叫什么来着？刚跟你说过，帮我回忆下";
-        answer = loveApp.doChat(message, chatId);
         Assertions.assertNotNull(answer);
     }
 
@@ -67,7 +62,7 @@ class LoveAppTest {
         testMessage("周末想带女朋友去上海约会，请通过联网搜索帮我查找具体的路线规划");
 
         // 测试网页抓取：恋爱案例分析
-        testMessage("最近和对象吵架了，请通过网页抓取工具，不要使用联网搜索工具，看看百度上（baidu.com）的其他情侣是怎么解决矛盾的？");
+        testMessage("最近和对象吵架了，请通过网页抓取工具，不要使用联网搜索工具，看看百度https://www.code-nav.cn/上的其他情侣是怎么解决矛盾的？");
 
         // 测试资源下载：图片下载
         testMessage("直接下载一张适合做手机壁纸的星空情侣图片为文件");
@@ -92,12 +87,12 @@ class LoveAppTest {
     void doChatWithMcp() {
         String chatId = UUID.randomUUID().toString();
         // 测试地图 MCP
-       // String message = "我的另一半居住在上海静安区，请帮我找到 5 公里内合适的约会地点";
-       // String answer =  loveApp.doChatWithMcp(message, chatId);
-       // Assertions.assertNotNull(answer);
+        // String message = "我的另一半居住在上海静安区，请帮我找到 5 公里内合适的约会地点";
+        // String answer =  loveApp.doChatWithMcp(message, chatId);
+        // Assertions.assertNotNull(answer);
         // 测试图片搜索 MCP
         String message = "帮我搜索一些哄另一半开心的图片";
-        String answer =  loveApp.doChatWithMcp(message, chatId);
+        String answer = loveApp.doChatWithMcp(message, chatId);
         Assertions.assertNotNull(answer);
     }
 }

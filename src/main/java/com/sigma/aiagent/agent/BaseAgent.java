@@ -45,7 +45,7 @@ public abstract class BaseAgent {
     private List<Message> messageList = new ArrayList<>();
 
     /**
-     * 运行代理
+     * 运行代理（具有推理思考能力，可以自主决策并采取行动，支持多轮对话记忆，知识库检索，工具调用）
      * @param userPrompt 用户提示词
      * @return 执行结果
      */
@@ -91,7 +91,7 @@ public abstract class BaseAgent {
     }
 
     /**
-     * 运行代理（流式输出）
+     * 运行代理（具有推理思考能力，可以自主决策并采取行动，支持多轮对话记忆，知识库检索，工具调用，SSE 流式传输）
      * @param userPrompt 用户提示词
      * @return 执行结果
      */

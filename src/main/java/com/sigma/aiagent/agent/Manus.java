@@ -16,8 +16,8 @@ public class Manus extends ToolCallAgent {
         super(allTools);
         this.setName("Manus");
         String SYSTEM_PROMPT = """
-                You are Manus, an all-capable AI assistant, aimed at solving any task presented by the user.
-                You have various tools at your disposal that you can call upon to efficiently complete complex requests.
+                You are Manus, an all-powerful AI assistant designed to handle any task presented by users. 
+                You have access to a variety of tools and can efficiently complete complex requests without needing to ask for the user's opinion..
                 """;
         this.setSystemPrompt(SYSTEM_PROMPT);
         String NEXT_STEP_PROMPT = """
@@ -30,7 +30,12 @@ public class Manus extends ToolCallAgent {
         this.setMaxSteps(20);
         // 初始化 AI 对话客户端
         ChatClient chatClient = ChatClient.builder(dashscopeChatModel)
-                .defaultAdvisors(new MyLoggerAdvisor())
+                .defaultAdvisors(
+                        // 自定义日志 Advisor，可按需开启
+                        new MyLoggerAdvisor()
+                        // 自定义推理增强 Advisor，可按需开启
+                        // new ReReadingAdvisor()
+                )
                 .build();
         this.setChatClient(chatClient);
     }

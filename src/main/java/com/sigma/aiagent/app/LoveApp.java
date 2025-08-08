@@ -2,9 +2,6 @@ package com.sigma.aiagent.app;
 
 
 import com.sigma.aiagent.advisor.MyLoggerAdvisor;
-import com.sigma.aiagent.advisor.ReReadingAdvisor;
-import com.sigma.aiagent.chatmemory.FileBasedChatMemory;
-import com.sigma.aiagent.rag.LoveAppRagCustomAdvisorFactory;
 import com.sigma.aiagent.rag.QueryRewriter;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -45,27 +42,58 @@ public class LoveApp {
 
     public LoveApp(ChatModel dashscopeChatModel) {
         // 初始化基于文件的对话记忆
-        String fileDir = System.getProperty("user.dir") + "\\chat-memory";
-        ChatMemory chatMemory = new FileBasedChatMemory(fileDir);
-        // // 初始化基于内存的对话记忆
-        // MessageWindowChatMemory chatMemory =
-        //         MessageWindowChatMemory.builder().chatMemoryRepository(new InMemoryChatMemoryRepository())
-        //         .maxMessages(20).build();
+        // String fileDir = System.getProperty("user.dir") + "\\chat-memory";
+        // ChatMemory chatMemory = new FileBasedChatMemory(fileDir);
+        // 初始化基于内存的对话记忆
+        MessageWindowChatMemory chatMemory =
+                MessageWindowChatMemory.builder().chatMemoryRepository(new InMemoryChatMemoryRepository())
+                        .maxMessages(20).build();
         chatClient =
                 ChatClient.builder(dashscopeChatModel).defaultSystem(SYSTEM_PROMPT).defaultAdvisors(MessageChatMemoryAdvisor.builder(chatMemory).build(),
                         // 自定义日志 Advisor，可按需开启
-                        new MyLoggerAdvisor(),
+                        new MyLoggerAdvisor()
                         // 自定义推理增强 Advisor，可按需开启
-                        new ReReadingAdvisor()).build();
+                        // new ReReadingAdvisor()
+                ).build();
     }
 
+    /**
+     * AI 基础对话（支持多轮对话记忆，知识库检索，工具调用）
+     * @param message
+     * @param chatId
+     * @return
+     */
     public String doChat(String message, String chatId) {
         ChatResponse chatResponse =
-                chatClient.prompt().user(message).advisors(spec -> spec.param(ChatMemory.CONVERSATION_ID, chatId)).call().chatResponse();
+                chatClient.prompt().user(message).advisors(spec -> spec.param(ChatMemory.CONVERSATION_ID, chatId))
+                        // 应用知识库问答
+                        .advisors(new QuestionAnswerAdvisor(loveAppVectorStore))
+                        // 工具调用
+                        .toolCallbacks(allTools)
+                        .call().chatResponse();
         String content = chatResponse.getResult().getOutput().getText();
-        log.info("content: {}", content);
         return content;
     }
+
+    /**
+     * AI 基础对话（支持多轮对话记忆，知识库检索，工具调用，SSE 流式传输）
+     * @param message
+     * @param chatId
+     * @return
+     */
+    public Flux<String> doChatByStream(String message, String chatId) {
+        return chatClient
+                .prompt()
+                .user(message)
+                .advisors(spec -> spec.param(ChatMemory.CONVERSATION_ID, chatId))
+                // 应用知识库问答
+                .advisors(new QuestionAnswerAdvisor(loveAppVectorStore))
+                // 工具调用
+                .toolCallbacks(allTools)
+                .stream()
+                .content();
+    }
+
 
     record LoveReport(String title, List<String> suggestions) {
 
@@ -80,7 +108,6 @@ public class LoveApp {
     public LoveReport doChatWithReport(String message, String chatId) {
         LoveReport loveReport =
                 chatClient.prompt().system(SYSTEM_PROMPT + "每次对话后都要生成恋爱结果，标题为{用户名}的恋爱报告，内容为建议列表").user(message).advisors(spec -> spec.param(ChatMemory.CONVERSATION_ID, chatId)).call().entity(LoveReport.class);
-        log.info("loveReport: {}", loveReport);
         return loveReport;
     }
 
@@ -108,8 +135,6 @@ public class LoveApp {
                 .prompt()
                 .user(rewrittenMessage)
                 .advisors(spec -> spec.param(ChatMemory.CONVERSATION_ID, chatId))
-                // 开启日志，便于观察效果
-                .advisors(new MyLoggerAdvisor())
                 // 应用知识库问答
                 .advisors(new QuestionAnswerAdvisor(loveAppVectorStore))
                 // .advisors(
@@ -120,7 +145,6 @@ public class LoveApp {
                 .call()
                 .chatResponse();
         String content = chatResponse.getResult().getOutput().getText();
-        // log.info("content: {}", content);
         return content;
     }
 
@@ -135,14 +159,11 @@ public class LoveApp {
                 .prompt()
                 .user(message)
                 .advisors(spec -> spec.param(ChatMemory.CONVERSATION_ID, chatId))
-                // 开启日志，便于观察效果
-                .advisors(new MyLoggerAdvisor())
                 // 应用增强检索服务（云知识库服务）
                 .advisors(loveAppRagCloudAdvisor)
                 .call()
                 .chatResponse();
         String content = chatResponse.getResult().getOutput().getText();
-        // log.info("content: {}", content);
         return content;
     }
 
@@ -157,14 +178,11 @@ public class LoveApp {
                 .prompt()
                 .user(message)
                 .advisors(spec -> spec.param(ChatMemory.CONVERSATION_ID, chatId))
-                // 开启日志，便于观察效果
-                .advisors(new MyLoggerAdvisor())
                 // 应用 RAG 检索增强服务（基于 PgVector 向量存储）
                 .advisors(new QuestionAnswerAdvisor(pgVectorVectorStore))
                 .call()
                 .chatResponse();
         String content = chatResponse.getResult().getOutput().getText();
-        // log.info("content: {}", content);
         return content;
     }
 
@@ -183,13 +201,10 @@ public class LoveApp {
                 .prompt()
                 .user(message)
                 .advisors(spec -> spec.param(ChatMemory.CONVERSATION_ID, chatId))
-                // 开启日志，便于观察效果
-                .advisors(new MyLoggerAdvisor())
                 .toolCallbacks(allTools)
                 .call()
                 .chatResponse();
         String content = chatResponse.getResult().getOutput().getText();
-        // log.info("content: {}", content);
         return content;
     }
 
@@ -209,13 +224,10 @@ public class LoveApp {
                 .prompt()
                 .user(message)
                 .advisors(spec -> spec.param(ChatMemory.CONVERSATION_ID, chatId))
-                // 开启日志，便于观察效果
-                .advisors(new MyLoggerAdvisor())
                 .toolCallbacks(toolCallbackProvider)
                 .call()
                 .chatResponse();
         String content = chatResponse.getResult().getOutput().getText();
-        // log.info("content: {}", content);
         return content;
     }
 }
