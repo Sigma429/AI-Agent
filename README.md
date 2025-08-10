@@ -43,7 +43,7 @@
 
 项目架构设计图：
 
-![AI 智能体架构图](static/AI 智能体架构图.png)
+![AI 智能体架构图](https://pic.yupi.icu/1/AI%E6%99%BA%E8%83%BD%E4%BD%93%E6%9E%B6%E6%9E%84%E5%9B%BE.png)
 
 
 

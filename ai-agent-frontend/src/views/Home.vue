@@ -96,7 +96,7 @@ export default {
 }
 
 .main-content {
-  padding: var(--spacing-xxl) 0;
+  padding: 0;
   flex: 1;
   display: flex;
   align-items: flex-start;
