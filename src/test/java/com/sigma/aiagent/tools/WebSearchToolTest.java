@@ -13,9 +13,10 @@ class WebSearchToolTest {
 
     @Test
     void searchWeb() {
-        WebSearchTool webSearchTool = new WebSearchTool(searchApiKey);
-        String query = "程序员鱼皮编程导航 codefather.cn";
-        String result = webSearchTool.searchWeb(query);
+        BochaaiWebSearchTool bochaaiWebSearchTool = new BochaaiWebSearchTool(searchApiKey);
+        String query = "我的另一半居住在上海静安区，请帮我找到 5 公里内合适的约会地点";
+        String result = bochaaiWebSearchTool.searchWeb(query);
+        System.out.println(result);
         Assertions.assertNotNull(result);
     }
 }

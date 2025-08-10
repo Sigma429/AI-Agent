@@ -1,5 +1,6 @@
 package com.sigma.aiagent.tools;
 
+import dev.langchain4j.web.search.WebSearchTool;
 import org.springframework.ai.support.ToolCallbacks;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,7 +19,7 @@ public class ToolRegistration {
     @Bean
     public ToolCallback[] allTools() {
         FileOperationTool fileOperationTool = new FileOperationTool();
-        WebSearchTool webSearchTool = new WebSearchTool(searchApiKey);
+        BochaaiWebSearchTool bochaaiWebSearchTool = new BochaaiWebSearchTool(searchApiKey);
         WebScrapingTool webScrapingTool = new WebScrapingTool();
         ResourceDownloadTool resourceDownloadTool = new ResourceDownloadTool();
         TerminalOperationTool terminalOperationTool = new TerminalOperationTool();
@@ -26,7 +27,7 @@ public class ToolRegistration {
         TerminateTool terminateTool = new TerminateTool();
         return ToolCallbacks.from(
                 fileOperationTool,
-                webSearchTool,
+                bochaaiWebSearchTool,
                 webScrapingTool,
                 resourceDownloadTool,
                 terminalOperationTool,

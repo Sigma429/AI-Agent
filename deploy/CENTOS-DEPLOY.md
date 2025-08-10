@@ -159,7 +159,7 @@ tail -f /var/log/nginx/error.log
 scp -r dist/ root@123.57.74.30:/tmp/
 
 # 在服务器上更新
-sudo centos-manager.sh update-frontend
+centos-manager update-frontend
 ```
 
 ### 更新后端
@@ -168,14 +168,14 @@ sudo centos-manager.sh update-frontend
 scp AI-Agent-0.0.1-SNAPSHOT.jar root@123.57.74.30:/tmp/
 
 # 在服务器上更新
-sudo centos-manager.sh update-backend
+centos-manager update-backend
 ```
 
 ## 备份和恢复
 
 ### 备份
 ```bash
-sudo centos-manager.sh backup
+centos-manager backup
 ```
 
 ### 恢复

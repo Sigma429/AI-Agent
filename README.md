@@ -1,5 +1,14 @@
 # AI 超级智能体项目
 
+该项目系本人学习AI应用开发所创项目，参考[liyupi (程序员鱼皮)](https://github.com/liyupi)的智能体项目[yu-ai-agent](https://github.com/liyupi/yu-ai-agent)，在此基础上做了部分优化处理
+
+上线地址为[AI Agent 应用平台](http://sigma429.online/)
+
+因调用大模型花费费用较昂贵（本人系学生），如若无法正常对话，可以观看下列演示视频
+
+[AI恋爱大师对话效果展示](static/AI恋爱大师对话效果展示.mp4)
+
+[AI超级智能体对话效果展示](static/AI恋爱大师对话效果展示.mp4)
 
 ## 项目功能梳理
 
@@ -34,7 +43,7 @@
 
 项目架构设计图：
 
-![AI 智能体架构图](https://pic.yupi.icu/1/AI%E6%99%BA%E8%83%BD%E4%BD%93%E6%9E%B6%E6%9E%84%E5%9B%BE.png)
+![AI 智能体架构图](static/AI 智能体架构图.png)
 
 
 

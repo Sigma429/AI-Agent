@@ -13,7 +13,7 @@ spring:
       api-key: ${API_KEY}
       chat:
         options:
-          model: qwen-plus-2025-07-28
+          model: qwen-turbo
     ollama:
       base-url: http://localhost:11434
       chat:
