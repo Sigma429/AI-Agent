@@ -16,12 +16,11 @@ public class TerminalOperationTool {
     public String executeTerminalCommand(@ToolParam(description = "Command to execute in the terminal") String command) {
         StringBuilder output = new StringBuilder();
         try {
-            // TODO
             // Windows系统
-            ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", command);
+            // ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", command);
             // Linux系统
-//            Process process = Runtime.getRuntime().exec(command);
-            Process process = builder.start();
+           Process process = Runtime.getRuntime().exec(command);
+            // Process process = builder.start();
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
                 String line;
                 while ((line = reader.readLine()) != null) {

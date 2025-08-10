@@ -1,9 +1,20 @@
 import axios from 'axios'
 
-// 使用相对路径，让前端代理处理
-const API_BASE_URL = '/api'
+// 根据环境动态设置API基础URL
+const getApiBaseUrl = () => {
+  // 生产环境
+  if (window.location.hostname === 'sigma429.online' || 
+      window.location.hostname === '123.57.74.30') {
+    return 'http://123.57.74.30:8123/api'
+  }
+  // 开发环境，使用相对路径让前端代理处理
+  return '/api'
+}
+
+const API_BASE_URL = getApiBaseUrl()
 
 console.log('API Base URL:', API_BASE_URL)
+console.log('Current hostname:', window.location.hostname)
 
 // 创建axios实例
 const apiClient = axios.create({

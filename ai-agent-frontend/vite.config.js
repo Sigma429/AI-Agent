@@ -20,5 +20,18 @@ export default defineConfig({
                 rewrite: (path) => path.replace(/^\/api/, '/api')
             }
         }
+    },
+    // 生产环境配置
+    build: {
+        outDir: 'dist',
+        assetsDir: 'assets',
+        sourcemap: false,
+        // 配置基础路径
+        base: '/',
+        rollupOptions: {
+            output: {
+                manualChunks: undefined
+            }
+        }
     }
 })
