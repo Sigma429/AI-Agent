@@ -8,6 +8,7 @@ src/main/resources/config.properties
 tmp/
 ai-agent-frontend/node_modules
 ai-agent-frontend/dist
+static/
 
 ### STS ###
 .apt_generated
